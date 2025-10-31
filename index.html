@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<link rel="manifest" href="/manifest.json">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPG Status</title>
+<style>
+    :root {
+        --bg: #1e1e1e;
+        --text: #fff;
+        --card: #2a2a2a;
+        --accent-blue: #1e90ff;
+        --accent-red: #b22222;
+        --accent-green: #32cd32;
+        --accent-orange: orange;
+    }
+
+    body {
+        background-color: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .hidden { display: none; }
+
+    .config-container,
+    .main-container {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 20px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    label {
+        display: block;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    input, select, button {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
+
+    button {
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        opacity: 0.9;
+        transform: scale(1.02);
+    }
+
+    .salvar { background-color: var(--accent-blue); color: white; }
+    .gastar { background-color: var(--accent-red); color: white; }
+    .recuperar { background-color: var(--accent-green); color: white; }
+    .voltar { background-color: #444; color: white; }
+
+    .bar-container {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .bar {
+        width: 100%;
+        background-color: #333;
+        border-radius: 8px;
+        overflow: hidden;
+        height: 25px;
+        margin-top: 5px;
+    }
+
+    .bar-inner {
+        height: 100%;
+        text-align: center;
+        color: white;
+        line-height: 25px;
+        font-weight: bold;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .vitalidade { background-color: red; }
+    .stamina { background-color: limegreen; }
+    .mana { background-color: blue; }
+    .fdv { background-color: var(--accent-orange); }
+
+    .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    /* ====== RESPONSIVIDADE ====== */
+
+    @media (min-width: 600px) {
+        .controls {
+            flex-direction: row;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .controls select, 
+        .controls input {
+            width: calc(50% - 5px);
+        }
+
+        .controls button {
+            flex: 1;
+        }
+    }
+
+    @media (min-width: 900px) {
+        body {
+            padding: 40px;
+        }
+        .config-container, .main-container {
+            max-width: 600px;
+            padding: 30px;
+        }
+    }
+
+</style>
+</head>
+<body>
+
+<!-- ================== TELA 1: CONFIGURAÇÃO INICIAL ================== -->
+<div id="config-screen" class="config-container">
+    <h2>Configurar Valores Iniciais</h2>
+
+    <label>Vitalidade Máx:</label>
+    <input type="number" id="vitalidade-max" value="560">
+
+    <label>Stamina Máx:</label>
+    <input type="number" id="stamina-max" value="193">
+
+    <label>Mana Máx:</label>
+    <input type="number" id="mana-max" value="45">
+
+    <label>Força de Vontade Máx:</label>
+    <input type="number" id="fdv-max" value="36">
+
+    <button class="salvar" onclick="salvarConfiguracao()">Salvar e Continuar</button>
+</div>
+
+<!-- ================== TELA 2: GASTAR / RECUPERAR ================== -->
+<div id="main-screen" class="main-container hidden">
+
+<h2>Status</h2>
+
+<div class="bar-container">
+    Vitalidade: <span id="vitalidade-text"></span>
+    <div class="bar"><div id="vitalidade-bar" class="bar-inner vitalidade"></div></div>
+</div>
+
+<div class="bar-container">
+    Stamina: <span id="stamina-text"></span>
+    <div class="bar"><div id="stamina-bar" class="bar-inner stamina"></div></div>
+</div>
+
+<div class="bar-container">
+    Mana: <span id="mana-text"></span>
+    <div class="bar"><div id="mana-bar" class="bar-inner mana"></div></div>
+</div>
+
+<div class="bar-container">
+    Força de Vontade: <span id="fdv-text"></span>
+    <div class="bar"><div id="fdv-bar" class="bar-inner fdv"></div></div>
+</div>
+
+<div class="controls">
+    <select id="recurso">
+        <option value="vitalidade">Vitalidade</option>
+        <option value="stamina">Stamina</option>
+        <option value="mana">Mana</option>
+        <option value="fdv">Força de Vontade</option>
+    </select>
+
+    <input type="number" id="quantidade" value="0" placeholder="Quantidade">
+
+    <button class="gastar" onclick="alterarRecurso('gastar')">Gastar</button>
+    <button class="recuperar" onclick="alterarRecurso('recuperar')">Recuperar</button>
+</div>
+
+<button class="voltar" onclick="voltarConfiguracao()" style="margin-top:20px;">⬅ Voltar para Configuração</button>
+
+</div>
+
+<script>
+    let atributos = {};
+
+    function salvarConfiguracao() {
+        atributos = {
+            vitalidade: { atual: parseInt(document.getElementById('vitalidade-max').value), max: parseInt(document.getElementById('vitalidade-max').value) },
+            stamina: { atual: parseInt(document.getElementById('stamina-max').value), max: parseInt(document.getElementById('stamina-max').value) },
+            mana: { atual: parseInt(document.getElementById('mana-max').value), max: parseInt(document.getElementById('mana-max').value) },
+            fdv: { atual: parseInt(document.getElementById('fdv-max').value), max: parseInt(document.getElementById('fdv-max').value) }
+        };
+        localStorage.setItem('atributos', JSON.stringify(atributos));
+        mostrarTelaPrincipal();
+    }
+
+    function atualizarUI() {
+        for (let key in atributos) {
+            const attr = atributos[key];
+            const textEl = document.getElementById(key + '-text');
+            const barEl = document.getElementById(key + '-bar');
+            if (textEl && barEl) {
+                textEl.textContent = `${attr.atual}/${attr.max}`;
+                const perc = (attr.atual / attr.max) * 100;
+                barEl.style.width = perc + '%';
+            }
+        }
+    }
+
+    function alterarRecurso(tipo) {
+        const recurso = document.getElementById('recurso').value;
+        let qtd = parseInt(document.getElementById('quantidade').value);
+        if (isNaN(qtd) || qtd < 0) qtd = 0;
+
+        if (tipo === 'gastar') {
+            atributos[recurso].atual -= qtd;
+            if (atributos[recurso].atual < 0) atributos[recurso].atual = 0;
+        } else if (tipo === 'recuperar') {
+            atributos[recurso].atual += qtd;
+            if (atributos[recurso].atual > atributos[recurso].max) atributos[recurso].atual = atributos[recurso].max;
+        }
+
+        localStorage.setItem('atributos', JSON.stringify(atributos));
+        atualizarUI();
+    }
+
+    function mostrarTelaPrincipal() {
+        document.getElementById('config-screen').classList.add('hidden');
+        document.getElementById('main-screen').classList.remove('hidden');
+        const salvo = localStorage.getItem('atributos');
+        if (salvo) atributos = JSON.parse(salvo);
+        atualizarUI();
+    }
+
+    function voltarConfiguracao() {
+        document.getElementById('config-screen').classList.remove('hidden');
+        document.getElementById('main-screen').classList.add('hidden');
+    }
+
+    // Verifica se já há dados salvos
+    window.onload = () => {
+        const salvo = localStorage.getItem('atributos');
+        if (salvo) mostrarTelaPrincipal();
+    };
+    if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('Service Worker registrado com sucesso:', registration.scope);
+      })
+      .catch(error => {
+        console.log('Falha no registro do Service Worker:', error);
+      });
+  });
+}
+</script>
+
+</body>
+</html>
